@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crop Yield Prediction</title>
+    <!-- <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}"> -->
+    <link rel="stylesheet" href="{{url_for('static',filename='dist/css/output.css')}}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            /* background-color: #4158D0; */
+            /* background-image: linear-gradient(43deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%); */
+            background-image: url("https://images.nationalgeographic.org/image/upload/t_edhub_resource_key_image/v1638892233/EducationHub/photos/crops-growing-in-thailand.jpg");
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            /* overflow: hidden; */
+            /* background-size: 400% 400%;
+            animation: gradient 1s ease infinite; */
+            height: 100vh;
+            padding: 0;
+            margin: 0;
+            font-size: large;
+        }
+
+        .wrapper {
+            /* display: flex; */
+            /* justify-content: center; */
+            /* align-items: center; */
+            min-height: 110vh;
+            background: rgba(39, 39, 39, 0.4);
+        }
+
+        .navbar {
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            font-weight: bolder;
+            font-size: larger;
+        }
+
+        .navbar h1 {
+            color: white;
+            margin: 2px;
+            padding: 10px;
+            float: left;
+        }
+
+        .container {
+            text-align: center;
+        }
+
+        form {
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+
+            padding-top: 60px;
+            padding-bottom: 20px;
+            padding-left: 50px;
+            padding-right: 50px;
+            border-radius: 20px;
+            display: inline-block;
+            text-align: left;
+            width: 80%;
+            max-width: 450px;
+            margin: 10px auto;
+        }
+
+        label {
+            display: block;
+            margin: 10px 0;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+            border-radius: 4px;
+        }
+
+
+
+        #prediction-label {
+            display: none;
+            /* Initially hidden */
+        }
+
+        #prediction {
+            display: none;
+            /* Initially hidden */
+        }
+
+        .elts {
+            margin: 10px;
+        }
+
+        .poppins-regular {
+            font-family: "Poppins", sans-serif;
+            font-weight: 400;
+            font-style: normal;
+        }
+
+        .poppins-semibold {
+            font-family: "Poppins", sans-serif;
+            font-weight: 600;
+            font-style: normal;
+        }
+
+        .poppins-bold {
+            font-family: "Poppins", sans-serif;
+            font-weight: 700;
+            font-style: normal;
+        }
+
+        .button-64 {
+            align-items: center;
+            background-image: linear-gradient(144deg, #AF40FF, #5B42F3 50%, #00DDEB);
+            border: 0;
+            border-radius: 8px;
+            box-shadow: rgba(194, 194, 194, 0.2) 0 15px 30px -5px;
+            box-sizing: border-box;
+            color: #FFFFFF;
+            display: flex;
+            font-family: Phantomsans, sans-serif;
+            font-size: 20px;
+            justify-content: center;
+            line-height: 1em;
+            max-width: 100%;
+            min-width: 140px;
+            padding: 3px;
+            text-decoration: none;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+        .button-64:active,
+        .button-64:hover {
+            outline: 0;
+        }
+
+        .button-64 span {
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 16px 24px;
+            border-radius: 6px;
+            width: 100%;
+            height: 100%;
+            transition: 300ms;
+        }
+
+        .button-64:hover span {
+            background: none;
+        }
+
+        @media (min-width: 768px) {
+            .button-64 {
+                font-size: 24px;
+                min-width: 196px;
+            }
+        }
+
+        button {
+            background-color: #4caf50;
+            color: #fff;
+            padding: 10px 20px;
+            margin-top: 20px;
+            margin-bottom: 0px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .center-btn{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+
+<body class="poppins-semibold">
+    <div class="wrapper">
+        <div class="navbar poppins-bold">
+            <h1>Crop Yield Prediction</h1>
+        </div>
+
+        <div class="container">
+            <form method="post" id="prediction-form">
+                <label for="Crop">Crop:</label>
+                <select id="season" name="season" required>
+                    <option value="" disabled selected>Select Season</option>
+                    <option value="Arhar">Arhar</option>
+                    <option value="Wheat">Wheat</option>
+                    <option value="Rice">Rice</option>
+                </select><br><br>
+
+                <label for="state">State:</label>
+                <select id="state" name="state" required>
+                    <option value="" disabled selected>Select State</option>
+                    <option value="state1">Andaman and Nicobar Islands</option>
+                    <option value="state2">Andhra Pradesh</option>
+                    <option value="state3">Arunachal Pradesh</option>
+                    <option value="state4">Assam</option>
+                    <option value="state5">Bihar</option>
+                    <option value="state6">Chandigarh</option>
+                    <option value="state7">Chhattisgarh</option>
+                    <option value="state8">Dadra and Nagar Haveli</option>
+                    <option value="state9">Daman and Diu</option>
+                    <option value="state10">Delhi</option>
+                    <option value="state11">Goa</option>
+                    <option value="state12">Gujarat</option>
+                    <option value="state13">Haryana</option>
+                    <option value="state14">Himachal Pradesh</option>
+                    <option value="state15">Jammu and Kashmir</option>
+                    <option value="state16">Jharkhand</option>
+                    <option value="state17">Karnataka</option>
+                    <option value="state18">Kerala</option>
+                    <option value="state19">Madhya Pradeshh</option>
+                    <option value="state20">Maharashtra</option>
+                    <option value="state21">Manipur</option>
+                    <option value="state22">Meghalaya</option>
+                    <option value="state23">Mizoram</option>
+                    <option value="state24">Nagaland</option>
+                    <option value="state25">Odisha</option>
+                    <option value="state26">Puducherry</option>
+                    <option value="state27">Punjab</option>
+                    <option value="state28">Rajasthan</option>
+                    <option value="state29">Sikkim</option>
+                    <option value="state30">Tamil Nadu</option>
+                    <option value="state31">Telangana</option>
+                    <option value="state32">THE DADRA AND NAGAR HAVELI AND DAMAN AND DIU</option>
+                    <option value="state33">Tripura</option>
+                    <option value="state34">Uttar Pradesh</option>
+                    <option value="state35">Uttarakhand</option>
+
+
+                    <!-- -->
+                </select><br><br>
+
+                <label for="district">District:</label>
+                <select id="district" name="district" required>
+                    <option value="" disabled selected>Select District</option>
+                </select><br><br>
+
+                <!-- <label for="year">Year:</label>
+                <input type="number" id="year" name="year" step="1" required><br><br> -->
+
+                <label for="year">Year:</label>
+            <input type="number" id="year" name="year" min="1997" max="2024" step="1" required><br><br>        
+
+                <label for="season">Season:</label>
+                <select id="season" name="season" required>
+                    <option value="" disabled selected>Select Season</option>
+                    <option value="season1">Kharif</option>
+                    <option value="season2">Autumn</option>
+                    <option value="season3">Rabi</option>
+                    <option value="season4">Total</option>
+                    <option value="season5">Summer</option>
+                    <option value="season6">Winter</option>
+                    <option value="season7">Whole Year</option>
+
+                </select><br><br>
+
+                <label for="area">Area (Hectare):</label>
+                <input type="number" id="area" name="area" step="0.01" required><br><br>
+
+                <div class="center-btn">
+                    <button type="submit" class="button-64"><span class="text">Predict</span></button>
+                </div>
+
+
+                <label id="prediction-label" for="prediction">Prediction (in Tonnes):</label>
+                <input type="text" id="prediction" name="prediction" readonly><br><br>
+            </form>
+            <!-- <div id="prediction-result" style="display: none;">
+            <h2>Prediction: <span id="predicted-value"></span></h2>
+        </div> -->
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var stateDropdown = document.getElementById('state');
+            var districtDropdown = document.getElementById('district');
+
+            // Define districts for each state
+            var districtOptions = {
+                'state1': ['2.NICOBARS', '3.NORTH AND MIDDLE ANDAMAN', '4.SOUTH ANDAMANS'],
+                'state2': ['1.ADILABAD', '2.ANANTAPUR', '3.CHITTOOR', '5.GUNTUR', '6.HYDERABAD', '7.KADAPA', '8.KARIMNAGAR', '9.KHAMMAM', '10.KRISHNA', '11.KURNOOL', '12.MAHBUBNAGAR', '13.MEDAK', '14.NALGONDA', '15.NIZAMABAD', '16.PRAKASAM', '17.RANGAREDDI', '18.SPSR NELLORE', '19.SRIKAKULAM', '20.VISAKHAPATANAM', '21.VIZIANAGARAM', '22.WARANGAL'],
+                'state3': ['1.ANJAW', '2.CHANGLANG', '3.DIBANG VALLEY', '4.EAST KAMENG', '5.EAST SIANG', '6.KAMLE', '7.KRA DAADI', '8.KURUNG KUMEY', '9.LEPARADA', '10.LOHIT', '11.LONGDING', '12.LOWER DIBANG VALLEY', '13.LOWER SIANG', '14.LOWER SUBANSIRI', '15.NAMSAI', '16.PAKKE KESSANG', '17.PAPUM PARE', '18.SHI YOMI', '19.SIANG', '20.TAWANG', '21.TIRAP', '22.UPPER SIANG', '23.UPPER SUBANSIRI', '24.WEST KAMENG', '25.WEST SIANG'],
+                'state4': ['1.BAKSA', '2.BARPETA', '3.BONGAIGAON', '4.CACHAR', '5.CHIRANG', '6.DARRANG', '7.DHEMAJI', '8.DHUBRI', '9.DIBRUGARH', '10.DIMA HASAO', '11.GOALPARA', '12.GOLAGHAT', '13.HAILAKANDI', '14.JORHAT', '15.KAMRUP', '16.KAMRUP METRO', '17.KARBI ANGLONG', '18.KARIMGANJ', '19.KOKRAJHAR', '20.LAKHIMPUR', '21.MARIGAON', '22.NAGAON', '23.NALBARI', '24.SIVASAGAR', '25.SONITPUR', '26.TINSUKIA', '27.UDALGURI'],
+                'state5': ['1.ARARIA', '2.ARWAL', '3.AURANGABAD', '4.BANKA', '5.BEGUSARAI', '6.BHAGALPUR', '7.BHOJPUR', '8.BOKARO', '9.BUXAR', '10.CHATRA', '11.DARBHANGA', '12.DEOGHAR', '13.DHANBAD', '14.DUMKA', '15.EAST SINGHBUM', '16.GARHWA', '17.GAYA', '18.GIRIDIH', '19.GODDA', '20.GOPALGANJ', '21.GUMLA', '22.HAZARIBAGH', '23.JAMUI', '24.JEHANABAD', '25.KAIMUR (BHABUA)', '26.KATIHAR', '27.KHAGARIA', '28.KISHANGANJ', '29.KODERMA', '30.LAKHISARAI', '31.LOHARDAGA', '32.MADHEPURA', '33.MADHUBANI', '34.MUNGER', '35.MUZAFFARPUR', '36.NALANDA', '37.NAWADA', '38.PAKUR', '39.PALAMU', '40.PASHCHIM CHAMPARAN', '41.PATNA', '42.PURBI CHAMPARAN', '43.PURNIA', '44.RANCHI', '45.ROHTAS', '46.SAHARSA', '47.SAHEBGANJ', '48.SAMASTIPUR', '49.SARAN', '50.SHEIKHPURA', '51.SHEOHAR', '52.SITAMARHI', '53.SIWAN', '54.SUPAUL', '55.VAISHALI', '56.WEST SINGHBHUM'],
+                'state6': ['1.CHANDIGARH'],
+                'state7': [ '1.BALOD',  '3.BALRAMPUR',  '4.BASTAR',  '5.BEMETARA',  '6.BIJAPUR',  '8.DANTEWADA',  '9.DHAMTARI',  '10.DURG',  '11.GARIYABAND',  '12.GAURELLA-PENDRA-MARWAHI',  '14.JASHPUR',  '15.KABIRDHAM',  '16.KANKER',  '17.KONDAGAON',  '18.KORBA',  '19.KOREA',  '21.MUNGELI',  '22.NARAYANPUR',  '24.RAIPUR',  '26.SUKMA',  '27.SURAJPUR',  '28.SURGUJA'],
+                'state8': ['1.DADRA AND NAGAR HAVELI'],
+                'state9': ['2.DAMAN'],
+                'state10': ['2.DELHI_TOTAL'],
+                'state11': ['2.NORTH GOA',  '3.SOUTH GOA'],
+                'state12': ['1.AHMADABAD',  '2.AMRELI',  '3.ANAND',  '4.ARAVALLI',  '5.BANAS KANTHA',  '6.BHARUCH',  '7.BHAVNAGAR',  '8.CHHOTAUDEPUR',  '9.DANG',  '10.DOHAD',  '11.GANDHINAGAR',  '12.GIR SOMNATH',  '13.JUNAGADH',  '14.KHEDA',  '15.MAHESANA',  '16.MAHISAGAR',  '17.NARMADA',  '18.NAVSARI',  '19.PANCH MAHALS',  '20.PATAN',  '21.SABAR KANTHA',  '22.SURAT',  '23.SURENDRANAGAR',  '24.TAPI',  '25.VADODARA',  '26.VALSAD'],
+                'state13': ['1.AMBALA',  '2.BHIWANI',  '3.CHARKI DADRI',  '4.FARIDABAD',  '5.FATEHABAD',  '6.GURGAON',  '7.HISAR',  '8.JHAJJAR',  '9.JIND',  '12.KURUKSHETRA',  '14.MEWAT',  '15.PALWAL',  '16.PANCHKULA',  '17.PANIPAT',  '18.REWARI',  '19.ROHTAK',  '20.SIRSA',  '21.SONIPAT',  '22.YAMUNANAGAR'],
+                'state14': ['1.BILASPUR',  '2.CHAMBA',  '3.HAMIRPUR',  '4.KANGRA',  '5.KINNAUR',  '6.KULLU',  '7.MANDI',  '8.SHIMLA',  '9.SIRMAUR',  '10.SOLAN',  '11.UNA'],
+                'state15': ['1.ANANTNAG',  '2.BADGAM',  '3.BANDIPORA',  '4.BARAMULLA',  '5.DODA',  '6.GANDERBAL',  '7.JAMMU',  '8.KATHUA',  '9.KISHTWAR',  '10.KULGAM',  '11.KUPWARA',  '12.POONCH',  '13.PULWAMA',  '14.RAJAURI',  '15.RAMBAN',  '16.REASI',  '17.SAMBA',  '18.SHOPIAN',  '19.SRINAGAR',  '20.UDHAMPUR'],
+                'state16': ['1.BOKARO',  '2.CHATRA',  '3.DEOGHAR',  '4.DHANBAD',  '5.DUMKA', '6.EAST SINGHBUM',  '7.GARHWA',  '8.GIRIDIH',  '9.GODDA',  '10.GUMLA',  '11.HAZARIBAGH',  '12.JAMTARA',  '13.KHUNTI',  '14.KODERMA',  '15.LATEHAR',  '16.LOHARDAGA',  '17.PAKUR',  '18.PALAMU',  '19.RAMGARH',  '20.RANCHI',  '21.SAHEBGANJ',  '22.SARAIKELA KHARSAWAN',  '23.SIMDEGA',  '24.WEST SINGHBHUM'],
+                'state17': ['1.BAGALKOTE',  '2.BALLARI',  '3.BANGALORE RURAL',  '4.BELAGAVI',  '5.BENGALURU URBAN',  '6.BIDAR',  '7.CHAMARAJANAGARA',  '8.CHIKKABALLAPURA',  '9.CHIKKAMAGALURU',  '10.CHITRADURGA',  '11.DAKSHINA KANNADA',  '12.DAVANGERE',  '13.DHARWAD',  '14.GADAG',  '15.HASSAN',  '16.HAVERI',  '17.KALABURAGI',  '18.KODAGU',  '19.KOLAR',  '20.KOPPAL',  '21.MANDYA',  '22.MYSURU',  '23.RAICHUR',  '24.RAMANAGARA',  '25.SHIVAMOGGA',  '26.TUMAKURU', ' 27.UDUPI',  '28.UTTARA KANNADA',  '29.VIJAYAPURA',  '30.YADAGIRI'],
+                'state18': ['1.ALAPPUZHA',  '2.ERNAKULAM',  '3.IDUKKI',  '4.KANNUR',  '5.KASARAGOD',  '6.KOLLAM',  '7.KOTTAYAM',  '8.KOZHIKODE',  '9.MALAPPURAM',  '10.PALAKKAD',  '11.PATHANAMTHITTA',  '12.THIRUVANANTHAPURAM',  '13.THRISSUR',  '14.WAYANAD'],
+                'state19': ['1.AGAR MALWA',  '2.ALIRAJPUR',  '3.ANUPPUR',  '4.ASHOKNAGAR',  '5.BALAGHAT',  '6.BARWANI',  '8.BETUL',  '9.BHIND',  '10.BHOPAL',  '12.BURHANPUR',  '13.CHHATARPUR',  '14.CHHINDWARA',  '15.DAMOH',  '17.DATIA',  '18.DEWAS',  '19.DHAMTARI',  '20.DHAR',  '21.DINDORI',  '23.GUNA',  '24.GWALIOR',  '25.HARDA',  '26.HOSHANGABAD',  '27.INDORE',  '28.JABALPUR',  '30.JASHPUR',  '31.JHABUA',  '32.KABIRDHAM',  '33.KANKER',  '34.KATNI',  '35.KHANDWA',  '36.KHARGONE', '37.KORBA',  '38.KOREA',  '40.MANDLA',  '41.MANDSAUR',  '42.MORENA',  '43.NARSINGHPUR',  '44.NEEMUCH',  '45.PANNA',  '47.RAISEN',  '48.RAJGARH',  '50.RATLAM',  '51.REWA',  '52.SAGAR',  '53.SATNA',  '54.SEHORE',  '55.SEONI',  '56.SHAHDOL',  '57.SHAJAPUR',  '58.SHEOPUR',  '59.SHIVPURI',  '60.SIDHI',  '61.SINGRAULI',  '63.TIKAMGARH',  '64.UJJAIN',  '65.UMARIA',  '66.VIDISHA'],
+                'state20': ['1.AHMEDNAGAR',  '2.AKOLA',  '3.AMRAVATI',  '4.AURANGABAD',  '5.BEED',  '6.BHANDARA',  '7.BULDHANA',  '8.CHANDRAPUR',  '9.DHULE',  '10.GADCHIROLI',  '11.GONDIA',  '12.HINGOLI',  '13.JALGAON',  '14.JALNA',  '15.KOLHAPUR',  '16.LATUR',  '17.NAGPUR',  '18.NANDED',  '19.NANDURBAR',  '20.NASHIK',  '21.OSMANABAD',  '22.PALGHAR',  '23.PARBHANI',  '24.PUNE',  '25.RAIGAD',  '26.RATNAGIRI',  '27.SANGLI',  '28.SATARA',  '29.SINDHUDURG',  '30.SOLAPUR',  '31.THANE',  '32.WARDHA',  '33.WASHIM',  '34.YAVATMAL'],
+                'state21': ['1.BISHNUPUR',  '2.CHANDEL',  '3.CHURACHANDPUR',  '4.IMPHAL EAST',  '5.IMPHAL WEST',  '6.SENAPATI',  '7.TAMENGLONG',  '8.THOUBAL',  '9.UKHRUL'],
+                'state22': ['1.EAST GARO HILLS',  '2.EAST JAINTIA HILLS',  '3.EAST KHASI HILLS',  '4.NORTH GARO HILLS',  '5.RI BHOI',  '6.SOUTH GARO HILLS',  '7.SOUTH WEST GARO HILLS',  '8.SOUTH WEST KHASI HILLS',  '9.WEST GARO HILLS',  '10.WEST JAINTIA HILLS',  '11.WEST KHASI HILLS'],
+                'state23': ['1.AIZAWL',  '2.CHAMPHAI',  '3.KOLASIB',  '4.LAWNGTLAI',  '5.LUNGLEI',  '6.MAMIT',  '7.SAIHA',  '8.SERCHHIP'],
+                'state24': ['1.DIMAPUR',  '2.KIPHIRE',  '3.KOHIMA',  '4.LONGLENG',  '5.MOKOKCHUNG',  '6.MON',  '7.PEREN',  '8.PHEK',  '9.TUENSANG',  '10.WOKHA',  '11.ZUNHEBOTO'],
+                'state25': ['1.ANUGUL',  '2.BALANGIR',  '3.BALESHWAR',  '4.BARGARH',  '5.BHADRAK',  '6.BOUDH',  '7.CUTTACK',  '8.DEOGARH',  '9.DHENKANAL',  '10.GAJAPATI',  '11.GANJAM',  '12.JAGATSINGHAPUR',  '13.JAJAPUR',  '14.JHARSUGUDA',  '15.KALAHANDI',  '16.KANDHAMAL',  '17.KENDRAPARA',  '18.KENDUJHAR',  '19.KHORDHA',  '20.KORAPUT',  '21.MALKANGIRI',  '22.MAYURBHANJ',  '23.NABARANGPUR',  '24.NAYAGARH',  '25.NUAPADA',  '26.PURI',  '27.RAYAGADA',  '28.SAMBALPUR',  '29.SONEPUR',  '30.SUNDARGARH'],
+                'state26': ['1.KARAIKAL',  '2.MAHE',  '3.PONDICHERRY',  '4.YANAM'],
+                'state27': ['3.BATHINDA',  '4.FARIDKOT',  '5.FATEHGARH SAHIB',  '9.HOSHIARPUR',  '13.MANSA',  '15.MUKTSAR',  '16.PATHANKOT',  '18.RUPNAGAR',  '19.S.A.S NAGAR',  '21.SHAHID BHAGAT SINGH NAGAR'],
+                'state28': ['1.AJMER',  '2.ALWAR',  '3.BANSWARA',  '4.BARAN',  '5.BHARATPUR',  '6.BHILWARA',  '7.BIKANER',  '8.BUNDI',  '9.CHITTORGARH',  '10.DAUSA',  '11.DHOLPUR',  '12.DUNGARPUR',  '13.GANGANAGAR',  '14.HANUMANGARH',  '15.JAIPUR',  '16.JHALAWAR',  '17.JODHPUR',  '18.KARAULI',  '19.KOTA',  '20.PALI',  '21.PRATAPGARH',  '22.RAJSAMAND',  '23.SAWAI MADHOPUR',  '24.SIROHI',  '25.TONK',  '26.UDAIPUR'],
+                'state29': ['1.EAST DISTRICT',  '2.NORTH DISTRICT',  '3.SOUTH DISTRICT',  '4.WEST DISTRICT'],
+                'state30': ['1.ARIYALUR',  '3.COIMBATORE',  '4.CUDDALORE',  '5.DHARMAPURI',  '6.DINDIGUL',  '7.ERODE',  '8.KANCHIPURAM',  '9.KANNIYAKUMARI',  '10.KARUR',  '11.KRISHNAGIRI',  '12.MADURAI',  '13.NAGAPATTINAM',  '14.NAMAKKAL',  '15.PERAMBALUR',  '16.PUDUKKOTTAI',  '17.RAMANATHAPURAM',  '18.SALEM',  '19.SIVAGANGA',  '20.THANJAVUR',  '21.THE NILGIRIS',  '22.THENI',  '23.THIRUVALLUR',  '24.THIRUVARUR',  '25.TIRUCHIRAPPALLI',  '26.TIRUNELVELI',  '27.TIRUPPUR',  '28.TIRUVANNAMALAI',  '29.TUTICORIN',  '30.VELLORE',  '31.VILLUPURAM',  '32.VIRUDHUNAGAR'],
+                'state31': ['1.ADILABAD',  '2.BHADRADRI',  '3.HANUMAKONDA',  '4.JAGITIAL',  '5.JANGOAN',  '6.JAYASHANKAR',  '7.JOGULAMBA',  '8.KAMAREDDY',  '9.KARIMNAGAR',  '10.KHAMMAM',  '11.KOMARAM BHEEM ASIFABAD',  '12.MAHABUBABAD',  '13.MAHBUBNAGAR',  '14.MANCHERIAL',  '15.MEDAK',  '16.MEDCHAL MALKAJGIRI',  '17.MULUGU',  '18.NAGARKURNOOL',  '19.NALGONDA',  '20.NARAYANAPET',  '21.NIRMAL',  '22.NIZAMABAD',  '23.PEDDAPALLI',  '24.RAJANNA',  '25.RANGAREDDI',  '26.SANGAREDDY',  '27.SIDDIPET',  '28.SURYAPET',  '29.VIKARABAD',  '30.WANAPARTHY',  '31.WARANGAL',  '32.YADADRI'],
+                'state32': ['1.DADRA AND NAGAR HAVELI',  '2.DAMAN'],
+                'state33': ['1.DHALAI',  '2.GOMATI',  '3.KHOWAI',  '4.NORTH TRIPURA',  '5.SEPAHIJALA',  '6.SOUTH TRIPURA',  '7.UNAKOTI',  '8.WEST TRIPURA'],
+                'state34': ['1.AGRA',  '2.ALIGARH',  '3.ALLAHABAD',  '4.ALMORA',  '5.AMBEDKAR NAGAR',  '6.AMETHI',  '7.AMROHA',  '8.AURAIYA',  '9.AZAMGARH',  '10.BAGESHWAR',  '11.BAGHPAT',  '12.BAHRAICH',  '13.BALLIA',  '14.BALRAMPUR',  '15.BANDA',  '16.BARABANKI',  '17.BAREILLY',  '18.BASTI',  '19.BIJNOR',  '20.BUDAUN',  '21.BULANDSHAHR',  '22.CHAMOLI',  '23.CHAMPAWAT',  '24.CHANDAULI',  '25.CHITRAKOOT',  '26.DEHRADUN',  '27.DEORIA',  '28.ETAH',  '29.ETAWAH',  '30.FAIZABAD',  '31.FARRUKHABAD',  '32.FATEHPUR',  '33.FIROZABAD',  '34.GAUTAM BUDDHA NAGAR',  '35.GHAZIABAD',  '36.GHAZIPUR',  '37.GONDA',  '38.GORAKHPUR',  '39.HAMIRPUR',  '40.HAPUR',  '41.HARDOI',  '42.HARIDWAR',  '43.HATHRAS',  '44.JALAUN',  '45.JAUNPUR',  '46.JHANSI',  '47.KANNAUJ',  '48.KANPUR DEHAT',  '49.KANPUR NAGAR',  '50.KASGANJ',  '51.KAUSHAMBI',  '52.KHERI',  '53.KUSHI NAGAR',  '54.LALITPUR',  '55.LUCKNOW',  '56.MAHARAJGANJ', '57.MAHOBA',  '58.MAINPURI',  '59.MATHURA',  '60.MAU',  '61.MEERUT',  '62.MIRZAPUR',  '63.MORADABAD',  '64.MUZAFFARNAGAR',  '65.NAINITAL',  '66.PAURI GARHWAL',  '67.PILIBHIT',  '68.PITHORAGARH',  '69.PRATAPGARH',  '70.RAE BARELI',  '71.RAMPUR',  '72.RUDRA PRAYAG',  '73.SAHARANPUR',  '74.SAMBHAL',  '75.SANT KABEER NAGAR',  '76.SANT RAVIDAS NAGAR',  '77.SHAHJAHANPUR',  '78.SHAMLI',  '79.SHRAVASTI',  '80.SIDDHARTH NAGAR',  '81.SITAPUR',  '82.SONBHADRA',  '83.SULTANPUR',  '84.TEHRI GARHWAL',  '85.UDAM SINGH NAGAR',  '86.UNNAO', '87.UTTAR KASHI',  '88.VARANASI'],
+                'state35': ['1.ALMORA',  '2.BAGESHWAR',  '3.CHAMOLI',  '4.CHAMPAWAT',  '5.DEHRADUN',  '6.HARIDWAR',  '7.NAINITAL',  '8.PAURI GARHWAL',  '9.PITHORAGARH',  '10.RUDRA PRAYAG',  '11.TEHRI GARHWAL',  '12.UDAM SINGH NAGAR',  '13.UTTAR KASHI']
+            };
+
+            // Update district dropdown when state selection changes
+            stateDropdown.addEventListener('change', function () {
+                var selectedState = stateDropdown.value;
+                var districts = districtOptions[selectedState] || [];
+
+                // Clear previous options
+                districtDropdown.innerHTML = '<option value="" disabled selected>Select District</option>';
+
+                // Add new options
+                districts.forEach(function (district) {
+                    var option = document.createElement('option');
+                    option.value = district;
+                    option.textContent = district;
+                    districtDropdown.appendChild(option);
+                });
+            });
+
+
+            var form = document.getElementById('prediction-form');
+            var predictionField = document.getElementById('prediction');
+            var predictionLabel = document.getElementById('prediction-label');
+            
+
+            form.addEventListener('submit', function (event) {
+                event.preventDefault(); // Prevent default form submission
+                var formData = new FormData(form); // Get form data
+                fetch('/', { // Send form data to the server
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(response => response.text()) // Parse response as text
+                    .then(prediction => { // Display prediction result
+                        predictionLabel.style.display = 'block'; // Show the prediction label
+                        predictionField.style.display = 'block'; // Show the prediction field
+                        predictionField.value = prediction; // Set the predicted value in the input field
+                    })
+                    .catch(error => console.error('Error:', error)); // Log any errors
+            });
+        });
+
+
+    </script>
+
+    {% if prediction %}
+    <h2>Prediction: {{ prediction[0] }}</h2>
+    {% endif %}
+
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script> -->
+</body>
+
+</html>
